@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Корисні цитати</title>
+    <!-- Підключаємо Bootstrap для красивого оформлення -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .tag-cloud a { text-decoration: none; margin: 2px; display: inline-block; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'quotes:root' %}">🌟 Quotes Site</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'quotes:root' %}">Головна</a>
+                </li>
+                <!-- Показуємо ці кнопки тільки якщо користувач увійшов в систему -->
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link text-warning" href="{% url 'quotes:add_author' %}">✍️ Додати автора</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-info" href="{% url 'quotes:add_quote' %}">💬 Додати цитату</a>
+                </li>
+                {% endif %}
+            </ul>
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                    <span class="text-light me-3">Привіт, <strong>{{ user.username }}</strong>!</span>
+                    <a href="{% url 'users:logout' %}" class="btn btn-outline-danger btn-sm">Вихід</a>
+                {% else %}
+                    <a href="{% url 'users:login' %}" class="btn btn-outline-light btn-sm me-2">Вхід</a>
+                    <a href="{% url 'users:signup' %}" class="btn btn-warning btn-sm">Реєстрація</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <!-- Основний контент сторінки -->
+        <div class="col-lg-8">
+            {% block content %}
+            {% endblock %}
+        </div>
+        
+        <!-- Права бокова панель з популярними тегами -->
+        <div class="col-lg-4">
+            <div class="card p-3 shadow-sm tag-cloud">
+                <h5 class="fw-bold mb-3">🔥 Топ-10 тегів</h5>
+                {% for tag in top_tags %}
+                    <a href="{% url 'quotes:quotes_by_tag' tag.name %}" class="badge bg-secondary p-2 m-1" style="font-size: 0.95em;">
+                        {{ tag.name }}
+                    </a>
+                {% empty %}
+                    <p class="text-muted small">Тегів поки немає</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

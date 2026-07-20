@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>🌟 Quotes Site</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; display: flex; gap: 20px; }
+        .main-content { flex: 3; }
+        .sidebar { flex: 1; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); height: fit-content; }
+        .nav-links { margin-bottom: 20px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); max-width: 1000px; margin-left: auto; margin-right: auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links div a { margin-right: 15px; color: #007bff; text-decoration: none; font-weight: bold; }
+        .nav-links div a:hover { text-decoration: underline; }
+        .quote-box { background: white; padding: 20px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 5px solid #007bff; }
+        .quote-text { font-size: 18px; font-style: italic; margin-bottom: 10px; }
+        .quote-author { font-size: 14px; color: #666; text-align: right; }
+        .quote-author a { color: #007bff; text-decoration: none; }
+        .tags { margin-top: 10px; }
+        .tag { display: inline-block; background: #e9ecef; color: #495057; padding: 3px 8px; margin-right: 5px; margin-bottom: 5px; border-radius: 4px; font-size: 12px; text-decoration: none; }
+        .tag:hover { background: #dee2e6; }
+        .sidebar-tags { display: flex; flex-direction: column; gap: 8px; }
+        .sidebar-tag { display: block; background: #f8f9fa; color: #007bff; padding: 6px 10px; border-radius: 4px; text-decoration: none; font-size: 13px; border: 1px solid #e9ecef; }
+        .sidebar-tag:hover { background: #e9ecef; }
+        .pagination { margin-top: 20px; text-align: center; }
+        .pagination a, .pagination span { padding: 8px 12px; margin: 0 4px; border: 1px solid #dee2e6; border-radius: 4px; text-decoration: none; color: #007bff; }
+        .pagination .current { background: #007bff; color: white; border-color: #007bff; }
+        .user-info { font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+
+<div class="nav-links">
+    <div>
+        <a href="/">🏠 Головна</a>
+        {% if user.is_authenticated %}
+            <a href="/add_author/">✍️ Додати автора</a>
+            <a href="/add_quote/">💬 Додати цитату</a>
+        {% else %}
+            <a href="/users/login/">🔑 Увійти</a>
+        {% endif %}
+    </div>
+    {% if user.is_authenticated %}
+        <span class="user-info">Привіт, <strong>{{ user.username }}</strong>!</span>
+    {% endif %}
+</div>
+
+<div class="container">
+    <div class="main-content">
+        {% if tag %}
+            <h2>Цитати за тегом: #{{ tag.name }}</h2>
+        {% endif %}
+
+        {% for quote in page_obj %}
+            <div class="quote-box">
+                <div class="quote-text">“{{ quote.quote }}”</div>
+                <div class="quote-author">
+                    — <a href="{% url 'quotes:author_detail' quote.author.id %}">{{ quote.author.fullname }}</a>
+                </div>
+                <div class="tags">
+                    {% for t in quote.tags.all %}
+                        <a href="{% url 'quotes:quotes_by_tag' t.name %}" class="tag">#{{ t.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p>Цитат поки немає.</p>
+        {% endfor %}
+
+        <!-- Пагінація -->
+        {% if page_obj.has_other_pages %}
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}">« Назад</a>
+                {% endif %}
+
+                <span class="current">{{ page_obj.number }} з {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Вперед »</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="sidebar">
+        <h3>🔥 Топ-10 тегів</h3>
+        <div class="sidebar-tags">
+            {% for t in top_tags %}
+                <a href="{% url 'quotes:quotes_by_tag' t.name %}" class="sidebar-tag">#{{ t.name }} ({{ t.num_quotes }})</a>
+            {% empty %}
+                <p>Тегів поки немає</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

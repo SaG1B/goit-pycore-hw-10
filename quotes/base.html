@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Мої Цитати</title>
+    <!-- Підключаємо Bootstrap для стильного вигляду -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .quote-box { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .tag { background: #eef2f7; color: #555; padding: 2px 8px; border-radius: 4px; text-decoration: none; font-size: 0.85em; margin-right: 5px; }
+        .tag:hover { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+    <!-- Меню сайту -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'quotes:root' %}">💬 Quotes Engine</a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'quotes:add_author' %}">+ Додати автора</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'quotes:add_quote' %}">+ Додати цитату</a></li>
+                        <li class="nav-item"><span class="nav-link text-warning">Привіт, {{ user.username }}!</span></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Вийти</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="#">Увійти</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#">Реєстрація</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основний контент -->
+    <div class="container">
+        <div class="row">
+            <!-- Ліва колонка (цитати) -->
+            <div class="col-md-8">
+                {% block content %} {% endblock %}
+            </div>
+
+            <!-- Права колонка (Top 10 Tags) -->
+            <div class="col-md-4">
+                <div class="p-3 bg-white rounded shadow-sm">
+                    <h5 class="border-bottom pb-2 mb-3 text-primary">🔥 Top Ten Tags</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for tag in top_tags %}
+                            <a href="{% url 'quotes:quotes_by_tag' tag.name %}" class="tag">{{ tag.name }} ({{ tag.num_quotes }})</a>
+                        {% empty %}
+                            <p class="text-muted text-center w-100">Тегів ще немає</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

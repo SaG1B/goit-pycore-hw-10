@@ -1,0 +1,52 @@
+{% extends "quotes/base.html" %}
+
+{% block content %}
+    <h2 class="mb-4 text-secondary">Останні цитати</h2>
+
+    {% for quote in quotes %}
+        <div class="quote-box">
+            <p class="fs-5 italic">"{{ quote.quote }}"</p>
+            <p class="text-end">
+                <span class="text-muted">— </span>
+                <!-- Створюємо URL-friendly ім'я автора, замінюючи пробіли на дефіси -->
+                <a href="{% url 'quotes:author_detail' author_name=quote.author.fullname|slugify %}" class="text-decoration-none fw-bold">
+                    {{ quote.author.fullname }}
+                </a>
+            </p>
+            <div class="mt-2">
+                {% for tag in quote.tags.all %}
+                    <a href="{% url 'quotes:quotes_by_tag' tag.name %}" class="tag">#{{ tag.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-center text-muted mt-5">Цитат у базі даних не знайдено.</p>
+    {% endfor %}
+
+    <!-- Пагінація -->
+    {% if quotes.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if quotes.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'quotes:root_paginate' quotes.previous_page_number %}">⬅ Попередня</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">⬅ Попередня</span></li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">Сторінка {{ quotes.number }} з {{ quotes.paginator.num_pages }}</span>
+                </li>
+
+                {% if quotes.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{% url 'quotes:root_paginate' quotes.next_page_number %}">Наступна ➡</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Наступна ➡</span></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% endblock %}
