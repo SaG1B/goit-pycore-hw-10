@@ -1,15 +1,14 @@
 import os
 from pathlib import Path
+from decouple import config, Csv
 
 # Побудова шляхів всередині проєкту (наприклад: BASE_DIR / 'subdir')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Швидкі налаштування для розробки (не підходить для production!)
-SECRET_KEY = 'django-insecure-your-secret-key-change-this-in-production'
-
-DEBUG = True
-
-ALLOWED_HOSTS = []
+# Швидкі налаштування зчитуються з файлу .env через python-decouple
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-change-this-in-production')
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv(), default='127.0.0.1,localhost')
 
 
 # Реєстрація додатків
@@ -58,7 +57,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'quotes_site.wsgi.application'
 
 
-# Тимчасово підключаємо просту базу SQLite, щоб усе працювало без Docker/Postgres
+# База даних (можна також винести налаштування в .env, якщо використовуєте PostgreSQL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -108,3 +107,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'quotes:root'
 LOGOUT_REDIRECT_URL = 'quotes:root'
+
+
+# Налаштування пошти для скидання пароля (зчитуються з .env)
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
